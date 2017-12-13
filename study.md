@@ -14,4 +14,4 @@
   - JavaScript SDK usage
   - REST api usage
 - react
-  - frontend psage dispage
+  - frontend page dispage
