@@ -1,7 +1,11 @@
 ## Items to study
-* parse server
-- setup
-- basic knowledge
-- class level permission
-- row level permission
-- column level permission
+- parse server
+  - setup
+  - basic knowledge
+  - class creation with name, fields (type)
+  - class level permission
+  - row level permission
+  - column level permission
+  - user & role permission on class and row
+  - pagination
+  
