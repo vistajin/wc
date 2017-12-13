@@ -1,6 +1,6 @@
 ## Items to study
 - parse server
-  - setup
+  - environment setup and configuration
   - basic knowledge
   - class creation with name, fields (type)
   - class level permission
@@ -8,4 +8,10 @@
   - column level permission
   - user & role permission on class and row
   - pagination
-  
+- parse dashboard
+  - environment setup and usage
+- nodejs & express (backend/proxy)  
+  - JavaScript SDK usage
+  - REST api usage
+- react
+  - frontend psage dispage
