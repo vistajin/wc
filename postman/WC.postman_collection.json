@@ -1,0 +1,91 @@
+{
+	"info": {
+		"name": "WC",
+		"_postman_id": "fca1e92f-8f71-06ac-f787-b5e0acba19b5",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"Vista\",\n\t\"password\": \"abc123\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "logout",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "localhost:3000/logout",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"logout"
+					]
+				},
+				"description": "logout"
+			},
+			"response": []
+		},
+		{
+			"name": "register-user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"Tester1\",\n\t\"password\": \"abc123\",\n\t\"email\": \"test1@wc.com\",\n\t\"phone\": \"13800138001\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/register-user",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"register-user"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
