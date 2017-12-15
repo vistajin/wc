@@ -45,3 +45,11 @@ Parse.Cloud.define("addUsersToRole", function(request, response) {
         }
     });
 });
+
+
+var moderators = /* Query for some Parse.Role */;
+var wallPost = new Parse.Object("WallPost");
+var postACL = new Parse.ACL();
+postACL.setRoleWriteAccess(moderators, true);
+wallPost.setACL(postACL);
+wallPost.save();
