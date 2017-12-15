@@ -8,10 +8,12 @@
   - column level permission
   - user & role permission on class and row
   - pagination
+  - data backup
 - parse dashboard
   - environment setup and usage
 - nodejs & express (backend/proxy)  
   - JavaScript SDK usage
   - REST api usage
+  - log to file?
 - react
   - frontend page display
