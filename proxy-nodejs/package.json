@@ -1,0 +1,22 @@
+{
+  "name": "proxy-nodejs",
+  "version": "1.0.0",
+  "description": "nodejs proxy which calls parse server to provide services for f/e",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "author": "Vista Jin",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "parse": "^1.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.5"
+  }
+}
