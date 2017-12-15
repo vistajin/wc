@@ -53,3 +53,10 @@ var postACL = new Parse.ACL();
 postACL.setRoleWriteAccess(moderators, true);
 wallPost.setACL(postACL);
 wallPost.save();
+
+
+var wallPost = new Parse.Object("WallPost");
+var postACL = new Parse.ACL();
+postACL.setRoleWriteAccess("Moderators", true);
+wallPost.setACL(postACL);
+wallPost.save();
