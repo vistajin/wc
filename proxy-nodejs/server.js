@@ -195,8 +195,10 @@ reqPost.on('error', function(e) {
 });
 */
 
-app.post('/register-user', (req, res) => {  
-  checkLogin(req, res);
+app.post('/user', (req, res) => {
+  if (!checkLogin(req, res)) {
+    return;
+  }
 
   var user = new Parse.User();
   user.set("username", req.body.username);
@@ -224,7 +226,11 @@ app.post('/register-user', (req, res) => {
       });
     }
   });
+});
 
+app.delete('/user', (req, res) => {
+  checkLogin(req, res);
+  
 });
 
 
@@ -309,7 +315,9 @@ function checkLogin(req, res) {
         msg: "User not yet login."
       }
     );
+    return false;
   }
+  return true;
 }
 
 
