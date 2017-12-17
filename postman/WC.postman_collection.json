@@ -71,16 +71,159 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"username\": \"Tester1\",\n\t\"password\": \"abc123\",\n\t\"email\": \"test1@wc.com\",\n\t\"phone\": \"13800138001\"\n}"
+					"raw": "{\n\t\"username\": \"Tester4\",\n\t\"password\": \"abc123\",\n\t\"email\": \"test4@wc.com\",\n\t\"phone\": \"13800138003\"\n}"
 				},
 				"url": {
-					"raw": "localhost:3000/register-user",
+					"raw": "localhost:3000/user",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
-						"register-user"
+						"user"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create-role",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"rolename\": \"C1\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/role",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"role"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "add-child-role",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/roles/append",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"roles",
+						"append"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get-role-by-name",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/roles/admin",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"roles",
+						"admin"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "delete-user",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/user",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "add-user-to-role",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"userId\": \"HpFn2cW2hp\",\n\t\"roleName\": \"admin\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/user/add-to-role",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"add-to-role"
 					]
 				},
 				"description": ""
