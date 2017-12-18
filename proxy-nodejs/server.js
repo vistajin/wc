@@ -1,3 +1,8 @@
+const HOST = 'localhost';
+const PORT = 1337;
+const APP_ID = 'wc880101';
+const MASTER_KEY = 'vj880101';
+
 const express = require('express');
 const app = express();
 const bodyParser= require('body-parser');
@@ -6,19 +11,22 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json()); // for parsing application/json
 
 var Parse = require('parse/node');
-Parse.initialize("wc880101", null, "vj880101");
-Parse.serverURL = 'http://localhost:1337/parse';
+Parse.initialize(APP_ID, null, MASTER_KEY);
+Parse.serverURL = 'http://' + HOST + ':' + PORT + '/parse';
 
 // https://github.com/expressjs/session
 var session = require('express-session');
 //app.set('trust proxy', 1); // trust first proxy
 app.use(session({ resave: true ,secret: 'session88010!' , saveUninitialized: true}));
 
-////////////////INITIALIZATION/////////////////
+var https = require('http');
+
+
 app.listen(3000, function() {
   console.log('listening on 3000');
 });
 
+/*
 app.get('/home', (req, res) => {
   if (!checkLogin(req, res)) {
     return;
@@ -39,46 +47,50 @@ app.get('/create-input', (req, res) => {
 
 app.get('/login-input', (req, res) => {
   res.sendFile(__dirname + '/views/login/login-input.html');
-});
+});*/
 
-app.post('/create', (req, res) => {
-  if (!checkLogin(req, res)) {
-    return;
-  }
-  console.log("create object input:", req.body);
-  // Simple syntax to create a new subclass of Parse.Object.
-  var NewObj = Parse.Object.extend(req.body.objName);
-
-  // Create a new instance of that class.
-  var newObj = new NewObj();
-
-  newObj.set(req.body.field1, "Hello");
-  newObj.set(req.body.field2, "WORLD");
-
-  newObj.save(null, {
-    useMasterKey: true,
-    success: function(newObj) {
-      // Execute any logic that should take place after the object is saved.
-      console.log('New object created with objectId: ' + newObj.id);
-    },
-    error: function(newObj, error) {
-      // Execute any logic that should take place if the save fails.
-      // error is a Parse.Error with an error code and message.
-      console.log('Failed to create new object, with error code: ' + error.message);
+/* create new class without data
+   sample requst:
+    {
+      "className": "Class008",
+      "columns": [
+        {"columnName": "col01", "columnType": "Boolean"},
+        {"columnName": "col02", "columnType": "String"},
+        {"columnName": "col03", "columnType": "Number"},
+        {"columnName": "col04", "columnType": "Date"}
+      ]
+    }*/
+app.post('/model', (req, res) => {
+  console.log("create model input:", req.body);
+  checkAdmin(req, res, function(isAdmin) {
+    if (!isAdmin) {
+      return;
     }
-  });
-  /*
-  Parse.Cloud.httpRequest({
-    url: 'localhost:1337/parse/schemas/' + req.body.objName,
-    headers: {
-      'Content-Type' : 'application/json',
-      //'Content-Length' : Buffer.byteLength(jsonObject, 'utf8'),
-      'X-Parse-Application-Id': 'wc880101',
-      'X-Parse-Master-Key': 'vj880101'
-    },
-    method: "POST",
-    body: JSON.stringify({
-      "className": req.body.objName,
+    var NewObj = Parse.Object.extend(req.body.className);
+    var newObj = new NewObj();
+    //newObj.fromJson(req.body);
+    for (var i in req.body.columns) {
+      var columnName = req.body.columns[i].columnName;
+      var columnType = req.body.columns[i].columnType;
+      switch (columnType) {
+        case 'Boolean':
+          newObj.set(columnName, true);
+          break;
+        case 'String':
+          newObj.set(columnName, 'DUMMY');
+          break;
+        case 'Number':
+          newObj.set(columnName, 100);
+          break;
+        case 'Date':
+          newObj.set(columnName, new Date());
+          break;
+      }
+    }
+
+    // disable public read & write, must call before save object
+    postApi("schemas/" + req.body.className, {
+      "className": req.body.className,
       "fields": {
         "name": {
           "type": "String"
@@ -88,59 +100,164 @@ app.post('/create', (req, res) => {
         "get": {
           "requiresAuthentication": true
         }
-      } 
-    })
-  }).then(function(httpResponse) {
-    // success
-    console.log(">>>>>>>>>Updated CLP successfully!");
-    console.log(httpResponse.text);
-  },function(httpResponse) {
-    // error
-    console.error('Request failed with response code ' + httpResponse.status);
-  });
-  */
-
-
-  // disable public read & write
-  var https = require('http');
-  jsonObject = JSON.stringify({
-      "className": req.body.objName,
-      "fields": {
-        "name": {
-          "type": "String"
-        }
-      },
-      "classLevelPermissions":
+      }
+    }, function(success) {
+      if (success) {
+        newObj.save(null, {useMasterKey: true})
+        .then(
+          function(newObj) {
+            console.log('New object created with objectId: ' + newObj.id);
+            return newObj;
+          })
+        .then(
+          function(newObj) {
+            // remove the temp dummy data
+            return newObj.destroy({
+              useMasterKey: true,
+              success: function(myObject) {
+                res.status(200).json(
+                  {
+                    code: 0,
+                    msg: "model created: " + req.body.className
+                  }
+                );
+              }
+            });
+          })
+        .catch(
+          function(error) {
+            res.status(400).json(
+              {
+                code: 10007,
+                msg: "create model failed: " + error
+              }
+            );
+            console.error('Failed to create new object ' + req.body.className, error);
+          });
+      } else {
+        res.status(400).json(
           {
-            "get": {
-              "requiresAuthentication": true
-            }
-          } 
+            code: 10008,
+            msg: 'disable public read & write of model: ' + req.body.className
+          }
+        );
+        console.error('error when disable public read & write of model: ' + req.body.className);
+      }
+    });
+
+    
+    /*
+    Parse.Cloud.httpRequest({
+      url: 'localhost:1337/parse/schemas/' + req.body.objName,
+      headers: {
+        'Content-Type' : 'application/json',
+        //'Content-Length' : Buffer.byteLength(jsonObject, 'utf8'),
+        'X-Parse-Application-Id': 'wc880101',
+        'X-Parse-Master-Key': 'vj880101'
+      },
+      method: "POST",
+      body: JSON.stringify({
+        "className": req.body.objName,
+        "fields": {
+          "name": {
+            "type": "String"
+          }
+        },
+        "classLevelPermissions": {
+          "get": {
+            "requiresAuthentication": true
+          }
+        } 
+      })
+    }).then(function(httpResponse) {
+      // success
+      console.log(">>>>>>>>>Updated CLP successfully!");
+      console.log(httpResponse.text);
+    },function(httpResponse) {
+      // error
+      console.error('Request failed with response code ' + httpResponse.status);
+    });
+    */    
   });
-   
-  // prepare the header
+});
+
+/*
+insert data to object, sample request:
+{
+  "className": "Class009",
+  "data": [
+    {"columnName": "col01", "value": true},
+    {"columnName": "col02", "value": "Hello world!"},
+    {"columnName": "col03", "value": 123.45}
+  ]
+}
+*/
+app.post('/model-data', (req, res) => {
+  console.log("insert data to model input:", req.body);
+  checkAdmin(req, res, function(isAdmin) {
+    if (!isAdmin) {
+      return;
+    }
+    // TODO: to check if the class exists or not
+    var NewObj = Parse.Object.extend(req.body.className);
+    var newObj = new NewObj();
+    //newObj.fromJson(req.body);
+    for (var i in req.body.data) {
+      var columnName = req.body.data[i].columnName;
+      var columnValue= req.body.data[i].value;
+      newObj.set(columnName, columnValue);
+    }
+
+    // disable public read/write
+    var acl = new Parse.ACL();
+    acl.setPublicReadAccess(false);
+    acl.setPublicWriteAccess(false);
+    newObj.setACL(acl);
+
+    newObj.save(null, {useMasterKey: true}).then(
+      function(newObj) {
+        console.log('Insert into ' + req.body.className + ', objectId: ' + newObj.id);
+        res.status(200).json(
+          {
+            code: 0,
+            msg: "insert into: " + req.body.className + ", objectId: " + newObj.id
+          }
+        );
+      },
+      function(error) {
+        res.status(400).json(
+          {
+            code: 10008,
+            msg: 'Failed to insert into ' + req.body.className + '.' + error
+          }
+        );
+        console.error('Failed to insert into ' + req.body.className, error);
+      });      
+  });
+});
+
+function postApi(uriParam, json, callback) {
+  jsonObject = JSON.stringify(json);
   var postheaders = {
     'Content-Type' : 'application/json',
     'Content-Length' : Buffer.byteLength(jsonObject, 'utf8'),
-    'X-Parse-Application-Id': 'wc880101',
-    'X-Parse-Master-Key': 'vj880101'
+    'X-Parse-Application-Id': APP_ID,
+    'X-Parse-Master-Key': MASTER_KEY
   };
-   
-  // the post options
   var optionspost = {
-    host : 'localhost',
-    port : 1337,
-    path : '/parse/schemas/' + req.body.objName,
+    host : HOST,
+    port : PORT,
+    path : '/parse/' + uriParam,
     method : 'POST',
     headers : postheaders
   };
-   
-  // do the POST call
+
   var reqPost = https.request(optionspost, function(res) {
-    console.log("statusCode: ", res.statusCode);
+    console.log("api call " + uriParam + " statusCode: ", res.statusCode);
+    callback(res.statusCode == 200);
  
     res.on('data', function(d) {
-      console.info('POST result:\n');
+      console.info("api call " + uriParam + " result: ");
       process.stdout.write(d);
     });
   });
@@ -149,10 +266,34 @@ app.post('/create', (req, res) => {
   reqPost.write(jsonObject);
   reqPost.end();
   reqPost.on('error', function(e) {
-    console.error(e);
+    console.error("api call " + uriParam, e);
+    callback(false);
+  });
+}
+
+app.get('/model/:className', (req, res) => {
+  if (!checkLogin(req, res)) {
+    return;
+  }
+
+  var query = new Parse.Query(req.params.className);
+  query.find({
+    useMasterKey: true,
+    success: function(object) {      
+      res.status(200).json({
+        code: 0,
+        msg: object
+      });
+    },
+    error: function(error) {
+      console.error("Failed to query " + req.params.className, error);
+      res.status(400).json({
+        code: error.code,
+        msg: error.message
+      });
+    }
   });
 });
-
 
 /*
 var optionsget = {
@@ -195,43 +336,37 @@ reqPost.on('error', function(e) {
 });
 */
 
-app.post('/role', (req, res) => {
-  if (!checkLogin(req, res)) {
-    return;
-  }
-
-  console.log("start to create role: ", req.body);
-  var roleACL = new Parse.ACL();
-  roleACL.setPublicReadAccess(false);
-  roleACL.setPublicWriteAccess(false);
-  var role = new Parse.Role(req.body.rolename, roleACL);
-  role.save(null, {
-    useMasterKey: true,
-    success: function(role) {
-      console.log('Create role successfully: ', role);
-      res.status(200).json(
-      {
-        code: 0,
-        msg: "Create role successfully"
-      });
-
-    },
-    error: function(role, error) {
-      console.log('Failed to create role', error);
-      res.status(400).json(
-      {
-        code: 10003,
-        msg: "Failed to create role: " + error
-      });
+app.post("/role", (req, res) => {
+  checkAdmin(req, res, function(isAdmin) {
+    if (!isAdmin) {
+      return;
     }
+    console.log("start to create role: ", req.body);
+    var roleACL = new Parse.ACL();
+    roleACL.setPublicReadAccess(false);
+    roleACL.setPublicWriteAccess(false);
+    var role = new Parse.Role(req.body.rolename, roleACL);
+    role.save(null, {
+      useMasterKey: true,
+      success: function(role) {
+        console.log('Create role successfully: ', role);
+        res.status(200).json(
+        {
+          code: 0,
+          msg: "Create role successfully"
+        });
+
+      },
+      error: function(role, error) {
+        console.log('Failed to create role', error);
+        res.status(400).json(
+        {
+          code: 10003,
+          msg: "Failed to create role: " + error
+        });
+      }
+    });
   });
-
-  //
-  //var administrators = /* Your "Administrators" role */;
-  //var moderators = /* Your "Moderators" role */;
-  //moderators.getRoles().add(administrators);
-  //moderators.save();
-
 });
 
 app.post('/roles/append', (req, res) => {
@@ -277,6 +412,7 @@ app.post('/roles/append', (req, res) => {
   });
 });
 
+// deprecated
 function addChildRole(parentRoleName, chileRoleName) {
   var query = new Parse.Query(Parse.Role);
   query.equalTo("name", req.params.name);
@@ -564,9 +700,7 @@ app.delete('/logout', (req, res) => {
   }
 });
 
-function checkLogin(req, res) {
-  return true;
-  /*
+function checkLogin(req, res) {  
   if (!req.session.user) {
     res.status(400).json(
       {
@@ -576,7 +710,7 @@ function checkLogin(req, res) {
     );
     return false;
   }
-  return true;*/
+  return true;
 }
 
 function isUserInRole(roleName, userId, callback) {
@@ -638,16 +772,3 @@ function checkAdmin(req, res, callback) {
     callback(result);
   });
 }
-
-app.post("/role/create", (req, res) => {
-  if (!checkLogin(req, res)) {
-    return;
-  }
-
-  res.status(200).json(
-    {
-      user: req.body.username,
-      password: req.body.password
-    }
-  );
-});

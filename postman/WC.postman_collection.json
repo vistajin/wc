@@ -88,6 +88,34 @@
 			"response": []
 		},
 		{
+			"name": "delete-user",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/user",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
 			"name": "create-role",
 			"request": {
 				"method": "POST",
@@ -109,35 +137,6 @@
 					"port": "3000",
 					"path": [
 						"role"
-					]
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "add-child-role",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
-				},
-				"url": {
-					"raw": "localhost:3000/roles/append",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"roles",
-						"append"
 					]
 				},
 				"description": ""
@@ -174,9 +173,9 @@
 			"response": []
 		},
 		{
-			"name": "delete-user",
+			"name": "add-child-role",
 			"request": {
-				"method": "DELETE",
+				"method": "POST",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -188,13 +187,14 @@
 					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
 				},
 				"url": {
-					"raw": "localhost:3000/user",
+					"raw": "localhost:3000/roles/append",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
-						"user"
+						"roles",
+						"append"
 					]
 				},
 				"description": ""
@@ -224,6 +224,92 @@
 					"path": [
 						"user",
 						"add-to-role"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create-model",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"className\": \"ColumnAccessControl\",\n\t\"columns\": [\n\t\t{\"columnName\": \"modelName\", \"columnType\": \"String\"},\n\t\t{\"columnName\": \"columnName\", \"columnType\": \"String\"},\n\t\t{\"columnName\": \"col03\", \"columnType\": \"Number\"},\n\t\t{\"columnName\": \"col04\", \"columnType\": \"Date\"}\n\t]\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/model",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"model"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "insert-data-to-model",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"className\": \"Class009\",\n\t\"data\": [\n\t\t{\"columnName\": \"col01\", \"value\": true},\n\t\t{\"columnName\": \"col02\", \"value\": \"Hello world!\"},\n\t\t{\"columnName\": \"col03\", \"value\": 123.45}\n\t]\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/model-data",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"model-data"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get-list-by-model-name",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"parentRoleName\": \"P1\",\n\t\"childRoleName\": \"C1\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/model/Class009",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"model",
+						"Class009"
 					]
 				},
 				"description": ""
